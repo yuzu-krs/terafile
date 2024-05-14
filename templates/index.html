@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>テラファイル便</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+      #uploadForm {
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+      }
+      h1 {
+        text-align: center;
+        color: #555;
+      }
+      input[type="file"] {
+        display: block;
+        margin: 10px 0;
+        width: calc(100% - 20px);
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      input[type="submit"] {
+        display: block;
+        margin: 10px auto;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #progressContainer {
+        text-align: center;
+        margin-top: 20px;
+      }
+      #progressBar {
+        width: calc(100% - 1200px); /* ゲージの幅を調整 */
+        background-color: #ccc; /* ゲージの背景色 */
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0 auto; /* 中央配置 */
+      }
+      #progressValue {
+        background-color: #007bff; /* ゲージの色 */
+        color: #fff;
+        text-align: center;
+        padding: 5px 0;
+        font-size: 14px;
+        width: 0; /* 初期状態でゲージが非表示になるように設定 */
+        transition: width 0.3s ease; /* ゲージが滑らかに変化するように設定 */
+      }
+      #downloadUrl {
+        text-align: center;
+        margin-top: 20px;
+      }
+      #downloadUrl a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      #description {
+        text-align: center;
+        font-size: 14px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>テラファイル便</h1>
+    <div id="description">
+      <p>
+        水曜日の23:59にアップロードされたファイルは、リセットされます。<br />
+        最大1テラバイトまでアップロードできます。
+      </p>
+    </div>
+    <form
+      id="uploadForm"
+      action="/upload"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <input type="file" name="file" />
+      <input type="submit" value="アップロード" />
+    </form>
+    <div id="progressContainer">
+      <div id="progressBar">
+        <div id="progressValue">0%</div>
+      </div>
+    </div>
+    <div id="downloadUrl" style="display: none"></div>
+
+    <script>
+      $(document).ready(function () {
+        $("#uploadForm").submit(function (e) {
+          e.preventDefault();
+          var form = $(this);
+          var formData = new FormData(form[0]);
+
+          $.ajax({
+            url: form.attr("action"),
+            type: form.attr("method"),
+            data: formData,
+            contentType: false,
+            processData: false,
+            xhr: function () {
+              var xhr = $.ajaxSettings.xhr();
+              xhr.upload.addEventListener(
+                "progress",
+                function (event) {
+                  if (event.lengthComputable) {
+                    var percentComplete = Math.round(
+                      (event.loaded / event.total) * 100
+                    );
+                    $("#progressValue").text(percentComplete + "%");
+                    $("#progressValue").css("width", percentComplete + "%");
+                  }
+                },
+                false
+              );
+              return xhr;
+            },
+            success: function (response) {
+              console.log(response);
+              $("#progressValue").text("アップロード完了");
+              var downloadUrl =
+                window.location.origin + "/download/" + response;
+              $("#downloadUrl").html("<a href=" + downloadUrl + "");
+              $("#downloadUrl").show();
+            },
+            error: function (xhr, status, error) {
+              console.error(xhr.responseText);
+              $("#progressValue").text("アップロード失敗");
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
