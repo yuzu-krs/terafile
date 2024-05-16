@@ -76,9 +76,24 @@
         text-align: center;
         margin-top: 20px;
       }
-      #downloadUrl a {
-        color: #007bff;
+
+      #downloadText {
+        background-color: #007bff;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 4px 0 0 4px;
+      }
+
+      #downloadLink {
+        background-color: #007bff;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 0 4px 4px 0;
         text-decoration: none;
+      }
+
+      #downloadLink:hover {
+        background-color: #0056b3;
       }
       #description {
         text-align: center;
@@ -109,7 +124,10 @@
         <div id="progressValue">0%</div>
       </div>
     </div>
-    <div id="downloadUrl" style="display: none"></div>
+    <div id="downloadUrl" style="display: none">
+      <span id="downloadText">URL:</span>
+      <a id="downloadLink" class="btn" href="#" style="display: none">Visit</a>
+    </div>
 
     <script>
       $(document).ready(function () {
